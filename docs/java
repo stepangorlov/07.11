@@ -1,1 +1,81 @@
+import java.util.*;
 
+public class NQueens {
+    
+    /**
+     * ПУБЛИЧНЫЙ МЕТОД - точка входа
+     * Создает необходимые структуры и запускает алгоритм
+     */
+    public static List<int[]> solveNQueens(int n) {
+        // СОЗДАЕМ структуры данных:
+        // solutions - список для хранения всех решений
+        List<int[]> solutions = new ArrayList<>();
+        
+        // queens - массив для хранения текущей расстановки
+        // queens[i] = столбец ферзя в строке i
+        int[] queens = new int[n];
+        
+        // ИНИЦИАЛИЗИРУЕМ массив значениями -1
+        // -1 означает, что в этой строке ферзь еще не размещен
+        Arrays.fill(queens, -1);
+        
+        // ЗАПУСКАЕМ backtracking алгоритм
+        backtrack(0, n, queens, solutions);
+        
+        return solutions;
+    }
+    
+    /**
+     * ПРИВАТНЫЙ МЕТОД ПРОВЕРКИ БЕЗОПАСНОСТИ
+     * Аналогичен Python версии, но на Java
+     */
+    private static boolean isSafe(int[] queens, int row, int col) {
+        // Проверяем ВСЕХ уже расставленных ферзей
+        for (int i = 0; i < row; i++) {
+            // Проверка СТОЛБЦА: если в этом столбце уже есть ферзь
+            if (queens[i] == col) {
+                return false; // Конфликт!
+            }
+            
+            // Проверка ДИАГОНАЛЕЙ: используем Math.abs для модуля
+            // Если |столбец_i - столбец_текущий| == |строка_i - строка_текущая|
+            // значит ферзи на одной диагонали
+            if (Math.abs(queens[i] - col) == Math.abs(i - row)) {
+                return false; // Конфликт!
+            }
+        }
+        return true; // Безопасно!
+    }
+    
+    /**
+     * РЕКУРСИВНЫЙ BACKTRACKING МЕТОД
+     * Основная логика алгоритма
+     */
+    private static void backtrack(int row, int n, int[] queens, List<int[]> solutions) {
+        // БАЗОВЫЙ СЛУЧАЙ: все строки обработаны
+        if (row == n) {
+            // СОХРАНЯЕМ решение
+            // queens.clone() создает КОПИЮ массива
+            // Это важно, так как массив передается по ссылке
+            solutions.add(queens.clone());
+            return; // Выход из рекурсии
+        }
+        
+        // ПЕРЕБИРАЕМ все возможные столбцы для текущей строки
+        for (int col = 0; col < n; col++) {
+            // ПРОВЕРЯЕМ безопасность позиции
+            if (isSafe(queens, row, col)) {
+                // ДЕЛАЕМ ВЫБОР: ставим ферзя
+                queens[row] = col;
+                
+                // РЕКУРСИВНЫЙ ВЫЗОВ: переходим к следующей строке
+                backtrack(row + 1, n, queens, solutions);
+                
+                // BACKTRACK: убираем ферзя (отмечаем как неразмещенный)
+                queens[row] = -1;
+            }
+        }
+        // Если ни один столбец не подошел, возвращаемся назад
+        // (автоматический backtracking)
+    }
+}
