@@ -1,1 +1,71 @@
+#include <iostream>
+#include <vector>
+#include <cmath>  // для abs()
+#include <algorithm> // для min()
 
+using namespace std;
+
+/**
+ * ФУНКЦИЯ ПРОВЕРКИ БЕЗОПАСНОСТИ
+ * Принимает ссылку на вектор queens для избежания копирования
+ */
+bool isSafe(const vector<int>& queens, int row, int col) {
+    // Проходим по ВСЕМ уже размещенным ферзям
+    for (int i = 0; i < row; i++) {
+        // Проверка ВЕРТИКАЛИ: тот же столбец?
+        if (queens[i] == col) {
+            return false; // Конфликт!
+        }
+        
+        // Проверка ДИАГОНАЛЕЙ: используем abs() из cmath
+        // abs() для int работает быстрее чем fabs() для double
+        if (abs(queens[i] - col) == abs(i - row)) {
+            return false; // Конфликт!
+        }
+    }
+    return true; // Безопасно!
+}
+
+/**
+ * РЕКУРСИВНАЯ ФУНКЦИЯ BACKTRACKING
+ * Принимает векторы по ссылке для эффективности
+ */
+void backtrack(int row, int n, vector<int>& queens, vector<vector<int>>& solutions) {
+    // БАЗОВЫЙ СЛУЧАЙ: все ферзи расставлены
+    if (row == n) {
+        // СОХРАНЯЕМ текущую расстановку
+        // vector автоматически создает копию при push_back
+        solutions.push_back(queens);
+        return;
+    }
+    
+    // ПЕРЕБОР всех возможных столбцов
+    for (int col = 0; col < n; col++) {
+        // ПРОВЕРКА безопасности
+        if (isSafe(queens, row, col)) {
+            // РАЗМЕЩАЕМ ферзя
+            queens[row] = col;
+            
+            // РЕКУРСИЯ: следующая строка
+            backtrack(row + 1, n, queens, solutions);
+            
+            // BACKTRACK: убираем ферзя
+            queens[row] = -1;
+        }
+    }
+}
+
+/**
+ * ОСНОВНАЯ ФУНКЦИЯ РЕШЕНИЯ
+ * Создает и возвращает вектор решений
+ */
+vector<vector<int>> solveNQueens(int n) {
+    // СОЗДАЕМ структуры данных
+    vector<vector<int>> solutions; // вектор векторов для решений
+    vector<int> queens(n, -1);     // вектор размера n, инициализированный -1
+    
+    // ЗАПУСКАЕМ алгоритм
+    backtrack(0, n, queens, solutions);
+    
+    return solutions;
+}
